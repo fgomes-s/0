@@ -1,23 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_toupper.c                                       :+:      :+:    :+:   */
+/*   ft_strdup.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fgomes-s <fgomes-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/26 17:04:48 by fgomes-s          #+#    #+#             */
-/*   Updated: 2022/11/08 11:20:56 by fgomes-s         ###   ########.fr       */
+/*   Created: 2022/11/08 11:26:58 by fgomes-s          #+#    #+#             */
+/*   Updated: 2022/11/10 14:14:48 by fgomes-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int ft_toupper(int c)
+char	*ft_strcpy(char *dest, char *src)
 {
-    if (c > 97 && c < 123)
-    {
-        return(c - 32);
-    }
-    else
-            return (c);
+	int	i;
+
+	i = 0;
+	while (src[i] != '\0')
+	{	
+		dest[i] = src[i];
+		i++;
+	}
+	dest[i] = '\0';
+	return (dest);
 }
+
+char *ft_strdup(const char *s)
+{
+    char *ptr;
+
+    ptr = (char *) malloc(ft_strlen(s) + 1);
+    if (ptr != NULL)
+    {
+        strcpy(ptr, s);
+    }
+    return (ptr);
+}
+
+
+

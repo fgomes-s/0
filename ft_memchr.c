@@ -6,13 +6,11 @@
 /*   By: fgomes-s <fgomes-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/28 15:33:00 by fgomes-s          #+#    #+#             */
-/*   Updated: 2022/10/28 15:47:19 by fgomes-s         ###   ########.fr       */
+/*   Updated: 2022/11/08 11:22:25 by fgomes-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-
-#include "stddef.h"
+#include "libft.h"
 
  void *ft_memchr(const void *s, int c, size_t n)
 {

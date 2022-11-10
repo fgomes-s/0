@@ -6,11 +6,11 @@
 /*   By: fgomes-s <fgomes-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 13:44:12 by fgomes-s          #+#    #+#             */
-/*   Updated: 2022/11/03 13:44:57 by fgomes-s         ###   ########.fr       */
+/*   Updated: 2022/11/08 11:21:27 by fgomes-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "stddef.h"
+#include "libft.h"
 
 int ft_strncmp(const char *s1, const char *s2, size_t n)
 {

@@ -6,11 +6,11 @@
 /*   By: fgomes-s <fgomes-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/28 11:53:52 by fgomes-s          #+#    #+#             */
-/*   Updated: 2022/10/28 12:12:07 by fgomes-s         ###   ########.fr       */
+/*   Updated: 2022/11/08 11:19:36 by fgomes-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "stddef.h"
+#include "libft.h"
 
 void ft_bzero(void *s, size_t n)
 {

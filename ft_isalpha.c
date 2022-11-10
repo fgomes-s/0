@@ -6,11 +6,11 @@
 /*   By: fgomes-s <fgomes-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 18:36:53 by fgomes-s          #+#    #+#             */
-/*   Updated: 2022/10/26 17:00:45 by fgomes-s         ###   ########.fr       */
+/*   Updated: 2022/11/08 11:20:03 by fgomes-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
+#include "libft.h"
 
 int ft_isalpha(int c)
 {

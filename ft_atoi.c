@@ -6,9 +6,11 @@
 /*   By: fgomes-s <fgomes-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 16:32:36 by fgomes-s          #+#    #+#             */
-/*   Updated: 2022/11/03 13:36:47 by fgomes-s         ###   ########.fr       */
+/*   Updated: 2022/11/08 11:19:49 by fgomes-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#include "libft.h"
 
 int atoi(const char *str)
 {

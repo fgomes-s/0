@@ -6,11 +6,11 @@
 /*   By: fgomes-s <fgomes-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 13:56:07 by fgomes-s          #+#    #+#             */
-/*   Updated: 2022/11/03 14:25:14 by fgomes-s         ###   ########.fr       */
+/*   Updated: 2022/11/08 11:21:22 by fgomes-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "stddef.h"
+#include "libft.h"
 
 char	*ft_strnstr(const char	*big, const char *little, size_t len)
 {

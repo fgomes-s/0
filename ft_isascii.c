@@ -6,11 +6,11 @@
 /*   By: fgomes-s <fgomes-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/26 12:37:20 by fgomes-s          #+#    #+#             */
-/*   Updated: 2022/10/28 11:49:22 by fgomes-s         ###   ########.fr       */
+/*   Updated: 2022/11/08 11:20:09 by fgomes-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
+#include "libft.h"
 
 int ft_isascii(int c)
 {

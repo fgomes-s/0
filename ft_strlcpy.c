@@ -6,11 +6,11 @@
 /*   By: fgomes-s <fgomes-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/26 15:46:29 by fgomes-s          #+#    #+#             */
-/*   Updated: 2022/10/26 16:03:51 by fgomes-s         ###   ########.fr       */
+/*   Updated: 2022/11/08 11:21:39 by fgomes-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "stddef.h"
+#include "libft.h"
 
 size_t ft_strlcpy(char *dest, const char *src, size_t size)
 {
