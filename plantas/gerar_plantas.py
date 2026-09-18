@@ -4,13 +4,13 @@
 Casa de pedra - proposta de renovacao.
 Gera duas folhas A4 (Piso 0 e Piso 1) em desenho tecnico a preto e branco.
 Saida: SVG + HTML + PDF (via chromium headless).
-Cotas em metros, escala 1:75.
+Desenho esquematico, sem cotas e sem escala.
 """
 import math
 import os
 import subprocess
 
-SCALE = 75.0
+SCALE = 70.0
 K = 1000.0 / SCALE          # mm por metro
 OUT = os.path.dirname(os.path.abspath(__file__))
 
@@ -229,74 +229,6 @@ def door(s, band, o):
     s.add('<path d="M %s %s A %s %s 0 0 %d %s %s" class="hair" fill="none"/>'
           % (n(s.X(closed[0])), n(s.Y(closed[1])), n(w * K), n(w * K),
              sweep, n(s.X(tip[0])), n(s.Y(tip[1]))))
-
-
-# ----------------------------------------------------------------------------
-# cotagem
-# ----------------------------------------------------------------------------
-def dim_chain(s, orient, stations, base_mm, ext_from, txt_cls="t-dim", total=False):
-    """orient 'h' -> cadeia horizontal; base_mm = y (mm) da linha de cota.
-       stations = lista de coordenadas (metros) ao longo do eixo.
-       ext_from = coordenada (metros) de onde partem as linhas de chamada
-       (escalar ou lista com um valor por estacao)."""
-    if not isinstance(ext_from, (list, tuple)):
-        ext_from = [ext_from] * len(stations)
-    for i in range(len(stations)):
-        a = stations[i]
-        ext = ext_from[i]
-        if orient == "h":
-            x = s.X(a)
-            y0 = s.Y(ext)
-            s.mline(x, y0 + (1.2 if base_mm > y0 else -1.2), x,
-                    base_mm + (1.8 if base_mm > y0 else -1.8), "dim")
-        else:
-            y = s.Y(a)
-            x0 = s.X(ext)
-            s.mline(x0 + (1.2 if base_mm > x0 else -1.2), y,
-                    base_mm + (1.8 if base_mm > x0 else -1.8), y, "dim")
-    for i in range(len(stations) - 1):
-        a, b = stations[i], stations[i + 1]
-        if orient == "h":
-            xa, xb = s.X(a), s.X(b)
-            s.mline(xa, base_mm, xb, base_mm, "dim")
-            for x in (xa, xb):
-                s.mline(x - 0.9, base_mm + 0.9, x + 0.9, base_mm - 0.9, "dim")
-            lbl = ("%.2f" % (b - a)).replace(".", ",")
-            s.mtext((xa + xb) / 2.0, base_mm - 1.1, lbl, txt_cls)
-        else:
-            ya, yb = s.Y(a), s.Y(b)
-            s.mline(base_mm, ya, base_mm, yb, "dim")
-            for y in (ya, yb):
-                s.mline(base_mm - 0.9, y + 0.9, base_mm + 0.9, y - 0.9, "dim")
-            lbl = ("%.2f" % (b - a)).replace(".", ",")
-            s.mtext(base_mm - 1.1, (ya + yb) / 2.0, lbl, txt_cls,
-                    rot=-90)
-
-
-def dim_free(s, p1, p2, off, label=None, cls="t-dim"):
-    """cota isolada entre dois pontos (metros), deslocada 'off' mm na perpendicular"""
-    x1, y1 = s.X(p1[0]), s.Y(p1[1])
-    x2, y2 = s.X(p2[0]), s.Y(p2[1])
-    dx, dy = x2 - x1, y2 - y1
-    L = math.hypot(dx, dy)
-    ux, uy = dx / L, dy / L
-    nx, ny = -uy, ux
-    ax, ay = x1 + nx * off, y1 + ny * off
-    bx, by = x2 + nx * off, y2 + ny * off
-    s.mline(x1 + nx * (off * 0.15), y1 + ny * (off * 0.15), ax + nx * 1.2, ay + ny * 1.2, "dim")
-    s.mline(x2 + nx * (off * 0.15), y2 + ny * (off * 0.15), bx + nx * 1.2, by + ny * 1.2, "dim")
-    s.mline(ax, ay, bx, by, "dim")
-    for (px, py) in ((ax, ay), (bx, by)):
-        s.mline(px - ux * 0.9 - nx * 0.9, py - uy * 0.9 - ny * 0.9,
-                px + ux * 0.9 + nx * 0.9, py + uy * 0.9 + ny * 0.9, "dim")
-    if label is None:
-        label = ("%.2f" % (L / K)).replace(".", ",")
-    ang = math.degrees(math.atan2(dy, dx))
-    if ang > 90 or ang < -90:
-        ang += 180
-    mx, my = (ax + bx) / 2.0, (ay + by) / 2.0
-    rot = ang if abs(ang) > 0.001 else None
-    s.mtext(mx - nx * 1.1, my - ny * 1.1, label, cls, rot=rot)
 
 
 # ----------------------------------------------------------------------------
@@ -665,18 +597,6 @@ def norte(s, cx, cy, r=7.0):
     s.mtext(cx, cy - r - 1.8, "N", "t-h2")
 
 
-def escala_grafica(s, x, y, w_m=5):
-    """barra de escala graduada (metros)"""
-    seg = K
-    h = 1.7
-    for i in range(w_m):
-        x0 = x + i * seg
-        s.mrect(x0, y, seg, h, "boxi", "#000" if i % 2 else "#fff")
-        s.mtext(x0, y + h + 2.9, str(i), "t-dim")
-    s.mtext(x + w_m * seg, y + h + 2.9, str(w_m), "t-dim")
-    s.mtext(x + w_m * seg / 2.0, y - 1.4, "ESCALA  1:75          (m)", "t-lbl")
-
-
 def caixa_titulo(s, box_title, rows, x0, y0, x1, row_h=4.0):
     """quadro com cabecalho + linhas [(esq, dta)]"""
     hh = 4.6
@@ -754,10 +674,10 @@ def cartucho(s, desenho, folha):
     s.mtext(xa + 3, y0 + 10.6, desenho, "t-tbb", "start")
     s.mline(xa + 3, y0 + 14.0, xb - 3, y0 + 14.0, "boxi")
     s.mtext(xa + 3, y0 + 18.4, "PROPOSTA", "t-tb", "start")
-    s.mtext(xa + 3, y0 + 23.4, "COTAS EM METROS", "t-tbs", "start")
-    s.mtext(xa + 3, y0 + 27.4, "COTAS EM TOSCO", "t-tbs", "start")
+    s.mtext(xa + 3, y0 + 23.4, "SEM COTAS", "t-tbs", "start")
+    s.mtext(xa + 3, y0 + 27.4, "PROPORÇÕES INDICATIVAS", "t-tbs", "start")
     # dados
-    rows = [("ESCALA", "1:75"), ("DATA", "09.2026"), ("FOLHA", folha), ("FORMATO", "A4")]
+    rows = [("ESCALA", "SEM ESCALA"), ("DATA", "09.2026"), ("FOLHA", folha), ("FORMATO", "A4")]
     for i, (a, b) in enumerate(rows):
         yy = y0 + 7.6 * i
         if i:
@@ -901,39 +821,17 @@ def draw_piso0(s):
         vaso(s, vx, vy)
 
     # --- toponimia
-    s.text(1.95, 1.98, "W.C.", "t-room")
-    s.text(1.95, 2.33, "6,00 m²", "t-area")
-    s.text(2.75, 5.06, "SALA / COZINHA", "t-room")
-    s.text(2.75, 5.42, "26,76 m²", "t-area")
-    s.text(-1.35, 4.92, "LAVANDARIA", "t-room")
-    s.text(-1.35, 5.30, "4,59 m²", "t-area")
-    s.text(-3.71, 6.22, "ESCRITÓRIO", "t-room")
-    s.text(-3.71, 6.56, "5,87 m²", "t-area")
-    fundo(s, -3.65, 8.92, 1.85, 1.35)
-    s.text(-3.65, 8.42, "QUINTAL", "t-room")
-    s.text(-3.65, 8.76, "17,27 m²", "t-area")
-    s.text(-3.65, 9.16, "ESPAÇO EXTERIOR", "t-lbl")
-    s.text(-3.65, 9.44, "DESCOBERTO", "t-lbl")
+    s.text(1.95, 2.16, "W.C.", "t-room")
+    s.text(2.75, 5.24, "SALA / COZINHA", "t-room")
+    s.text(-1.35, 5.10, "LAVANDARIA", "t-room")
+    s.text(-3.71, 6.40, "ESCRITÓRIO", "t-room")
+    fundo(s, -3.65, 8.98, 1.85, 1.25)
+    s.text(-3.65, 8.60, "QUINTAL", "t-room")
+    s.text(-3.65, 9.10, "ESPAÇO EXTERIOR", "t-lbl")
+    s.text(-3.65, 9.38, "DESCOBERTO", "t-lbl")
     s.text(4.65, 5.18, "ESCADA", "t-lbl")
 
-    # --- cotagem
-    top = s.Y(0.00) - 9.0
-    dim_chain(s, "h", [0.00, 0.55, 5.25, 5.80], top, 0.00)
-    b1 = s.Y(10.20) + 9.0
-    dim_chain(s, "h", [-4.90, -4.60, 0.00], b1, 10.20)
-    dim_chain(s, "h", [0.00, 0.75, 1.65, 3.85, 4.85, 5.80], b1, 8.20)
-    dim_chain(s, "h", [-4.90, 0.00, 5.80], b1 + 8.0, 10.20)
-    l1 = s.X(-4.90) - 8.0
-    dim_chain(s, "v", [3.40, 3.70, 9.90, 10.20], l1, -4.90)
-    dim_chain(s, "v", [0.00, 10.20], l1 - 7.5, -4.90)
-    r1 = s.X(5.80) + 8.0
-    dim_chain(s, "v", [0.00, 0.55, 7.65, 8.20], r1, 5.80)
-    dim_free(s, (EX0, EY_BOT), (EX1, EY_BOT), 6.0)
 
-
-# ----------------------------------------------------------------------------
-# PISO 1
-# ----------------------------------------------------------------------------
 def draw_piso1(s):
     bands = [
         Band("h", 0.00, 0.55, (0.00, 5.80), (0.00, 5.80), (0.55, 5.25),
@@ -967,94 +865,74 @@ def draw_piso1(s):
     seta(s, (2.60, 3.35), (3.90, 3.35))
     fundo(s, 2.60, 3.06, 1.85, 0.30)
     s.text(2.60, 3.13, "SENTIDO DO VIGAMENTO", "t-lbl")
-    s.text(2.30, 4.52, "QUARTO", "t-room")
-    s.text(2.30, 4.88, "29,16 m²", "t-area")
-
-    top = s.Y(0.00) - 9.0
-    dim_chain(s, "h", [0.00, 0.55, 5.25, 5.80], top, 0.00)
-    bot = s.Y(8.20) + 9.0
-    dim_chain(s, "h", [0.00, 2.30, 3.50, 5.80], bot, 8.20)
-    dim_chain(s, "h", [0.00, 5.80], bot + 8.0, 8.20)
-    l1 = s.X(0.00) - 8.0
-    dim_chain(s, "v", [0.00, 0.55, 7.65, 8.20], l1, 0.00)
-    dim_chain(s, "v", [0.00, 8.20], l1 - 7.5, 0.00)
-    dim_free(s, (EX0, EY_BOT), (EX1, EY_BOT), 6.0)
+    s.text(2.30, 4.70, "QUARTO", "t-room")
 
 
 # ----------------------------------------------------------------------------
 # folhas
 # ----------------------------------------------------------------------------
 LEG0 = [
-    ("stone", "PAREDE EXISTENTE — ALVENARIA DE PEDRA (0,55 m)"),
-    ("new", "PAREDE NOVA — TABIQUE / GESSO CARTONADO (0,12 m)"),
+    ("stone", "PAREDE EXISTENTE — ALVENARIA DE PEDRA"),
+    ("new", "PAREDE NOVA — TABIQUE / GESSO CARTONADO"),
     ("vao", "VÃO ENVIDRAÇADO"),
     ("porta", "PORTA COM SENTIDO DE ABERTURA"),
     ("lajeta", "PAVIMENTO EXTERIOR EM LAJETA DE GRANITO"),
 ]
 LEG1 = [
-    ("stone", "PAREDE EXISTENTE — ALVENARIA DE PEDRA (0,55 m)"),
+    ("stone", "PAREDE EXISTENTE — ALVENARIA DE PEDRA"),
     ("vao", "VÃO ENVIDRAÇADO"),
     ("porta", "PORTA COM SENTIDO DE ABERTURA"),
 ]
 NOTAS0 = [
-    "1.  Cotas em metros, medidas em tosco. A confirmar em obra.",
-    "2.  Paredes exteriores em alvenaria de pedra existente (0,55 m), a manter e consolidar.",
-    "3.  Paredes interiores novas em tabique de madeira ou gesso cartonado (0,12 m).",
-    "4.  Pé-direito do piso 0: 2,60 m sob o vigamento de madeira.",
-    "5.  Escada em madeira maciça: 15 espelhos de 0,187 m e 14 cobertores de 0,27 m.",
-    "6.  Vãos existentes a manter; novos vãos exigem lintel e verificação estrutural.",
+    "1.  Desenho esquemático, sem cotas e sem escala. Proporções indicativas.",
+    "2.  Paredes exteriores em alvenaria de pedra existente, a manter e consolidar.",
+    "3.  Paredes interiores novas em tabique de madeira ou gesso cartonado.",
+    "4.  Escada em madeira maciça, de um lance direito.",
+    "5.  Vãos existentes a manter; novos vãos exigem lintel e verificação estrutural.",
+    "6.  Quintal descoberto, com pavimento em lajeta de granito.",
 ]
 NOTAS1 = [
-    "1.  Cotas em metros, medidas em tosco. A confirmar em obra.",
-    "2.  Pé-direito variável: 2,20 m junto à parede e 3,40 m na cumeeira.",
+    "1.  Desenho esquemático, sem cotas e sem escala. Proporções indicativas.",
+    "2.  Pé-direito variável, sob a cobertura inclinada.",
     "3.  Vigamento e ripado da cobertura à vista, em madeira tratada.",
-    "4.  Guarda do vão da escada com 1,00 m de altura, em madeira maciça.",
-    "5.  Isolamento térmico aplicado pelo interior da cobertura (0,10 m).",
-    "6.  Cobertura de duas águas em telha cerâmica recuperada sobre estrutura a rever.",
+    "4.  Guarda em madeira maciça no vão da escada.",
+    "5.  Isolamento térmico aplicado pelo interior da cobertura.",
+    "6.  Cobertura de duas águas em telha cerâmica recuperada, sobre estrutura a rever.",
 ]
-AREAS0 = [
-    ("W.C.", "6,00 m²"),
-    ("SALA / COZINHA", "26,76 m²"),
-    ("LAVANDARIA", "4,59 m²"),
-    ("ESCRITÓRIO", "5,87 m²"),
-    ("ÁREA ÚTIL DO PISO 0", "43,22 m²"),
-    ("QUINTAL (EXTERIOR)", "17,27 m²"),
-]
-AREAS1 = [
-    ("QUARTO", "29,16 m²"),
-    ("ÁREA ÚTIL DO PISO 1", "29,16 m²"),
-    ("ÁREA ÚTIL DO PISO 0", "43,22 m²"),
-    ("ÁREA ÚTIL TOTAL", "72,38 m²"),
-    ("QUINTAL (EXTERIOR)", "17,27 m²"),
+PROGRAMA = [
+    ("W.C.", "PISO 0"),
+    ("SALA / COZINHA", "PISO 0"),
+    ("LAVANDARIA", "PISO 0"),
+    ("ESCRITÓRIO", "PISO 0"),
+    ("QUINTAL — EXTERIOR", "PISO 0"),
+    ("QUARTO", "PISO 1"),
 ]
 
 
 def folha0():
-    s = Sheet(107.33, 76.0)
+    s = Sheet(103.5, 70.0)
     frame(s)
     header(s, "PLANTA DO PISO 0",
-           "PROPOSTA DE RENOVAÇÃO  ·  ESCALA 1:75  ·  COTAS EM METROS")
+           "PROPOSTA DE RENOVAÇÃO  ·  DESENHO ESQUEMÁTICO  ·  SEM COTAS")
     legenda(s, 23.0, 33.0, 103.0, LEG0)
-    caixa_titulo(s, "QUADRO DE ÁREAS  ·  PISO 0", AREAS0, 112.0, 35.0, 197.0, 4.0)
+    caixa_titulo(s, "PROGRAMA DE COMPARTIMENTOS", PROGRAMA, 112.0, 33.0, 197.0, 4.0)
     draw_piso0(s)
-    norte(s, 75.0, 101.0, 6.4)
-    escala_grafica(s, 26.0, 238.0)
-    notas(s, 104.0, 233.0, 197.0, NOTAS0)
+    norte(s, 68.0, 98.0, 6.6)
+    notas(s, 26.0, 233.0, 197.0, NOTAS0)
     cartucho(s, "PLANTA DO PISO 0", "01 DE 02")
     return page(s, "Planta do Piso 0")
 
 
 def folha1():
-    s = Sheet(70.0, 86.0)
+    s = Sheet(68.55, 88.0)
     frame(s)
     header(s, "PLANTA DO PISO 1",
-           "PROPOSTA DE RENOVAÇÃO  ·  ESCALA 1:75  ·  COTAS EM METROS")
+           "PROPOSTA DE RENOVAÇÃO  ·  DESENHO ESQUEMÁTICO  ·  SEM COTAS")
     legenda(s, 23.0, 33.0, 103.0, LEG1)
-    caixa_titulo(s, "QUADRO DE ÁREAS", AREAS1, 112.0, 35.0, 197.0, 4.0)
+    caixa_titulo(s, "PROGRAMA DE COMPARTIMENTOS", PROGRAMA, 112.0, 33.0, 197.0, 4.0)
     draw_piso1(s)
-    norte(s, 176.0, 96.0, 6.4)
-    escala_grafica(s, 26.0, 224.0)
-    notas(s, 104.0, 219.0, 197.0, NOTAS1)
+    norte(s, 175.0, 100.0, 6.6)
+    notas(s, 26.0, 219.0, 197.0, NOTAS1)
     cartucho(s, "PLANTA DO PISO 1", "02 DE 02")
     return page(s, "Planta do Piso 1")
 
